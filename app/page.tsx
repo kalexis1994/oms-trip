@@ -87,7 +87,7 @@ export default function Home() {
   // Sync scroll position with audio time
   useEffect(() => {
     const updateScroll = () => {
-      if (!audioContextRef.current || !duration || !autoScrollEnabled || !isPlaying) return;
+      if (!sourceNodeRef.current || !audioContextRef.current || !duration || !autoScrollEnabled) return;
 
       const currentTime = audioContextRef.current.currentTime - startTimeRef.current;
       const delaySeconds = 5;
@@ -168,15 +168,17 @@ export default function Home() {
     playAudio();
   };
 
-  const calculateScrollProgress = () => {
-    if (!duration) return 0;
-
-    let currentTime: number;
-    if (isPlaying && audioContextRef.current) {
-      currentTime = audioContextRef.current.currentTime - startTimeRef.current;
-    } else {
-      currentTime = pausedAtRef.current;
+  const getCurrentAudioTime = () => {
+    // If we have an active source, calculate from audioContext
+    if (sourceNodeRef.current && audioContextRef.current) {
+      return audioContextRef.current.currentTime - startTimeRef.current;
     }
+    // Otherwise use the paused position
+    return pausedAtRef.current;
+  };
+
+  const calculateScrollProgress = (currentTime: number) => {
+    if (!duration) return 0;
 
     const delaySeconds = 5;
     if (currentTime > delaySeconds) {
@@ -188,7 +190,8 @@ export default function Home() {
   };
 
   const handleReenableAutoScroll = () => {
-    const progress = calculateScrollProgress();
+    const currentTime = getCurrentAudioTime();
+    const progress = calculateScrollProgress(currentTime);
     setScrollProgress(progress);
     setAutoScrollEnabled(true);
   };
