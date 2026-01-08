@@ -182,6 +182,7 @@ export default function Home() {
             style={{
               animationDuration: duration ? `${duration}s` : '180s',
               animationPlayState: isPlaying ? 'running' : 'paused',
+              animationDelay: '5s',
             }}
           >
             <h1 className="text-4xl md:text-6xl font-extrabold text-center mb-12" style={{ fontFamily: 'var(--font-exo)', color: '#ffffff', textShadow: '2px 2px 8px rgba(0,0,0,0.9), 0 0 30px rgba(0,0,0,0.7)' }}>
