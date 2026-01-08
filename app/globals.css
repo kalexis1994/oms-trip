@@ -68,9 +68,44 @@ h1, h2, h3, h4, h5, h6 {
   animation: fadeIn 0.8s ease-out forwards;
 }
 
+/* Breathing animation for play button */
+@keyframes breathing {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(191, 60, 56, 0.7);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 20px rgba(191, 60, 56, 0);
+  }
+}
+
+.play-button {
+  animation: breathing 2s ease-in-out infinite;
+}
+
+.play-button:hover {
+  animation: none;
+  transform: scale(1.1);
+}
+
 /* Estilos para la letra de la canción */
 .lyrics-container {
   white-space: pre-line;
   line-height: 1.8;
   font-size: 1.1rem;
 }
+
+/* Lyric sections fade in sequentially */
+.lyric-section {
+  opacity: 0;
+  animation: fadeIn 1s ease-out forwards;
+}
+
+.lyrics-scroll .lyric-section:nth-child(1) { animation-delay: 0.5s; }
+.lyrics-scroll .lyric-section:nth-child(2) { animation-delay: 1s; }
+.lyrics-scroll .lyric-section:nth-child(3) { animation-delay: 1.5s; }
+.lyrics-scroll .lyric-section:nth-child(4) { animation-delay: 2s; }
+.lyrics-scroll .lyric-section:nth-child(5) { animation-delay: 2.5s; }
+.lyrics-scroll .lyric-section:nth-child(6) { animation-delay: 3s; }
+.lyrics-scroll .lyric-section:nth-child(7) { animation-delay: 3.5s; }
