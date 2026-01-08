@@ -9,6 +9,7 @@ export default function Home() {
   const [duration, setDuration] = useState(0);
   const [displayProgress, setDisplayProgress] = useState(0); // Position shown on screen
   const [autoScrollEnabled, setAutoScrollEnabled] = useState(true);
+  const autoScrollEnabledRef = useRef(true); // Ref version for animation loop
   const audioContextRef = useRef<AudioContext | null>(null);
   const sourceNodeRef = useRef<AudioBufferSourceNode | null>(null);
   const audioBufferRef = useRef<AudioBuffer | null>(null);
@@ -66,7 +67,8 @@ export default function Home() {
   // Detect manual scroll to disable auto-scroll
   useEffect(() => {
     const handleManualScroll = () => {
-      if (autoScrollEnabled && hasStarted) {
+      if (autoScrollEnabledRef.current && hasStarted) {
+        autoScrollEnabledRef.current = false;
         setAutoScrollEnabled(false);
       }
     };
@@ -83,7 +85,7 @@ export default function Home() {
         container.removeEventListener('touchmove', handleManualScroll);
       }
     };
-  }, [autoScrollEnabled, hasStarted]);
+  }, [hasStarted]);
 
   // Always track synced position based on audio time
   useEffect(() => {
@@ -105,8 +107,8 @@ export default function Home() {
       // Always update synced position ref (instant, no React batching)
       syncedProgressRef.current = progress;
 
-      // Only update display position if auto-scroll is enabled
-      if (autoScrollEnabled) {
+      // Only update display position if auto-scroll is enabled (check ref, not state)
+      if (autoScrollEnabledRef.current) {
         setDisplayProgress(progress);
       }
 
@@ -123,7 +125,7 @@ export default function Home() {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [isPlaying, duration, autoScrollEnabled]);
+  }, [isPlaying, duration]);
 
   const playAudio = () => {
     if (!audioContextRef.current || !audioBufferRef.current) return;
@@ -179,7 +181,9 @@ export default function Home() {
 
   const handleReenableAutoScroll = () => {
     // Move display position to current synced position (from ref, always up-to-date)
-    setDisplayProgress(syncedProgressRef.current);
+    const targetProgress = syncedProgressRef.current;
+    setDisplayProgress(targetProgress);
+    autoScrollEnabledRef.current = true;
     setAutoScrollEnabled(true);
   };
 
