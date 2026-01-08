@@ -7,7 +7,8 @@ export default function Home() {
   const [hasStarted, setHasStarted] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [duration, setDuration] = useState(0);
-  const [scrollProgress, setScrollProgress] = useState(0);
+  const [syncedProgress, setSyncedProgress] = useState(0); // Position based on audio time
+  const [displayProgress, setDisplayProgress] = useState(0); // Position shown on screen
   const [autoScrollEnabled, setAutoScrollEnabled] = useState(true);
   const audioContextRef = useRef<AudioContext | null>(null);
   const sourceNodeRef = useRef<AudioBufferSourceNode | null>(null);
@@ -84,29 +85,34 @@ export default function Home() {
     };
   }, [autoScrollEnabled, hasStarted]);
 
-  // Sync scroll position with audio time
+  // Always track synced position based on audio time
   useEffect(() => {
-    const updateScroll = () => {
-      if (!sourceNodeRef.current || !audioContextRef.current || !duration || !autoScrollEnabled) return;
+    const updateSyncedPosition = () => {
+      if (!sourceNodeRef.current || !audioContextRef.current || !duration) return;
 
       const currentTime = audioContextRef.current.currentTime - startTimeRef.current;
       const delaySeconds = 5;
 
-      // Calculate progress (0 to 1) after delay
+      let progress = 0;
       if (currentTime > delaySeconds) {
         const scrollTime = currentTime - delaySeconds;
         const scrollDuration = duration - delaySeconds;
-        const progress = Math.min(scrollTime / scrollDuration, 1);
-        setScrollProgress(progress);
-      } else {
-        setScrollProgress(0);
+        progress = Math.min(scrollTime / scrollDuration, 1);
       }
 
-      animationFrameRef.current = requestAnimationFrame(updateScroll);
+      // Always update synced position
+      setSyncedProgress(progress);
+
+      // Only update display position if auto-scroll is enabled
+      if (autoScrollEnabled) {
+        setDisplayProgress(progress);
+      }
+
+      animationFrameRef.current = requestAnimationFrame(updateSyncedPosition);
     };
 
-    if (isPlaying && autoScrollEnabled) {
-      animationFrameRef.current = requestAnimationFrame(updateScroll);
+    if (isPlaying) {
+      animationFrameRef.current = requestAnimationFrame(updateSyncedPosition);
     }
 
     return () => {
@@ -168,31 +174,9 @@ export default function Home() {
     playAudio();
   };
 
-  const getCurrentAudioTime = () => {
-    // If we have an active source, calculate from audioContext
-    if (sourceNodeRef.current && audioContextRef.current) {
-      return audioContextRef.current.currentTime - startTimeRef.current;
-    }
-    // Otherwise use the paused position
-    return pausedAtRef.current;
-  };
-
-  const calculateScrollProgress = (currentTime: number) => {
-    if (!duration) return 0;
-
-    const delaySeconds = 5;
-    if (currentTime > delaySeconds) {
-      const scrollTime = currentTime - delaySeconds;
-      const scrollDuration = duration - delaySeconds;
-      return Math.min(scrollTime / scrollDuration, 1);
-    }
-    return 0;
-  };
-
   const handleReenableAutoScroll = () => {
-    const currentTime = getCurrentAudioTime();
-    const progress = calculateScrollProgress(currentTime);
-    setScrollProgress(progress);
+    // Move display position to synced position
+    setDisplayProgress(syncedProgress);
     setAutoScrollEnabled(true);
   };
 
@@ -284,7 +268,7 @@ export default function Home() {
             ref={lyricsContainerRef}
             className={`max-w-4xl mx-auto w-full transition-transform ${autoScrollEnabled ? 'duration-500' : 'duration-0'}`}
             style={{
-              transform: `translateY(calc(30vh - ${scrollProgress * 130}vh))`,
+              transform: `translateY(calc(30vh - ${displayProgress * 130}vh))`,
             }}
           >
             <h1 className="text-4xl md:text-6xl font-extrabold text-center mb-12" style={{ fontFamily: 'var(--font-exo)', color: '#ffffff', textShadow: '2px 2px 8px rgba(0,0,0,0.9), 0 0 30px rgba(0,0,0,0.7)' }}>
