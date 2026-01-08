@@ -180,7 +180,7 @@ export default function Home() {
           <div
             className="max-w-4xl mx-auto w-full lyrics-auto-scroll"
             style={{
-              animationDuration: duration ? `${duration}s` : '180s',
+              animationDuration: duration ? `${duration - 5}s` : '175s',
               animationPlayState: isPlaying ? 'running' : 'paused',
               animationDelay: '5s',
             }}
