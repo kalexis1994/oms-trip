@@ -171,6 +171,20 @@ export default function Home() {
   };
 
   const handleReenableAutoScroll = () => {
+    // Calculate current position based on audio time
+    if (audioContextRef.current && duration) {
+      const currentTime = audioContextRef.current.currentTime - startTimeRef.current;
+      const delaySeconds = 5;
+
+      if (currentTime > delaySeconds) {
+        const scrollTime = currentTime - delaySeconds;
+        const scrollDuration = duration - delaySeconds;
+        const progress = Math.min(scrollTime / scrollDuration, 1);
+        setScrollProgress(progress);
+      } else {
+        setScrollProgress(0);
+      }
+    }
     setAutoScrollEnabled(true);
   };
 
@@ -260,7 +274,7 @@ export default function Home() {
         <main ref={mainContainerRef} className="flex-1 overflow-hidden px-4 pt-16 pb-32">
           <div
             ref={lyricsContainerRef}
-            className="max-w-4xl mx-auto w-full transition-transform duration-100"
+            className={`max-w-4xl mx-auto w-full transition-transform ${autoScrollEnabled ? 'duration-500' : 'duration-0'}`}
             style={{
               transform: `translateY(calc(30vh - ${scrollProgress * 130}vh))`,
             }}
