@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 
 export default function Home() {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const audioContextRef = useRef<AudioContext | null>(null);
   const sourceNodeRef = useRef<AudioBufferSourceNode | null>(null);
@@ -98,6 +99,11 @@ export default function Home() {
 
   const handlePlay = () => {
     if (!isLoaded) return;
+    setHasStarted(true);
+    playAudio();
+  };
+
+  const handleResume = () => {
     playAudio();
   };
 
@@ -111,10 +117,10 @@ export default function Home() {
         <div className="absolute inset-0 bg-black/60"></div>
       </div>
 
-      {/* Initial Play Screen */}
+      {/* Initial Play Screen - Only shown before first play */}
       <div
         className={`fixed inset-0 z-20 flex flex-col items-center justify-center transition-opacity duration-1000 ${
-          isPlaying ? "opacity-0 pointer-events-none" : "opacity-100"
+          hasStarted ? "opacity-0 pointer-events-none" : "opacity-100"
         }`}
       >
         <h1 className="text-3xl md:text-5xl font-bold mb-8 text-center px-4" style={{ fontFamily: 'var(--font-exo)', color: '#ffffff', textShadow: '2px 2px 8px rgba(0,0,0,0.9), 0 0 30px rgba(0,0,0,0.7)' }}>
@@ -141,10 +147,27 @@ export default function Home() {
         </p>
       </div>
 
-      {/* Lyrics Content - Fades in after play */}
+      {/* Floating Resume Button - Shows when paused after starting */}
+      {hasStarted && !isPlaying && (
+        <button
+          onClick={handleResume}
+          className="fixed top-4 right-4 z-40 w-14 h-14 rounded-full bg-[#bf3c38] flex items-center justify-center cursor-pointer hover:bg-[#d44540] transition-all shadow-xl"
+          aria-label="Resume song"
+        >
+          <svg
+            className="w-6 h-6 text-white ml-1"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path d="M8 5v14l11-7z"/>
+          </svg>
+        </button>
+      )}
+
+      {/* Lyrics Content - Fades in after first play */}
       <div
         className={`relative z-10 min-h-screen flex flex-col transition-opacity duration-1500 ${
-          isPlaying ? "opacity-100" : "opacity-0"
+          hasStarted ? "opacity-100" : "opacity-0"
         }`}
         style={{ transitionDuration: "1.5s", transitionDelay: "0.5s" }}
       >
