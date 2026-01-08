@@ -149,7 +149,7 @@ export default function Home() {
         style={{ transitionDuration: "1.5s", transitionDelay: "0.5s" }}
       >
         {/* Main Lyrics Section */}
-        <main className="flex-1 flex items-center justify-center px-4 py-16">
+        <main className="flex-1 flex items-center justify-center px-4 pt-16 pb-32">
           <div className="max-w-4xl w-full">
             <h1 className="text-white text-4xl md:text-6xl font-extrabold text-center mb-12" style={{ fontFamily: 'var(--font-exo)', textShadow: '2px 2px 8px rgba(0,0,0,0.8), 0 0 20px rgba(0,0,0,0.5)' }}>
               Outliers Under the Sun
@@ -243,22 +243,23 @@ export default function Home() {
           </div>
         </main>
 
-        {/* Footer */}
-        <footer className="relative z-10 py-8 bg-black/40 backdrop-blur-sm">
-          <div className="max-w-6xl mx-auto px-4 flex flex-col items-center gap-4">
-            {/* OMS Logo */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/oms-logo.png"
-              alt="Outliers Mining Solutions"
-              className="h-12"
-            />
-            <p className="text-white/60 text-sm">
-              Powered by <span className="font-semibold text-white/80">OTSI</span>
-            </p>
-          </div>
-        </footer>
       </div>
+
+      {/* Footer - Always visible */}
+      <footer className="fixed bottom-0 left-0 right-0 z-30 py-4 bg-black/60 backdrop-blur-sm">
+        <div className="max-w-6xl mx-auto px-4 flex flex-col items-center gap-2">
+          {/* OMS Logo */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/oms-logo.png"
+            alt="Outliers Mining Solutions"
+            className="h-10"
+          />
+          <p className="text-white/60 text-xs">
+            Powered by <span className="font-semibold text-white/80">OTSI</span>
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }
