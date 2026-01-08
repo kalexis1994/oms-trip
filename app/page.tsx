@@ -87,7 +87,7 @@ export default function Home() {
   // Sync scroll position with audio time
   useEffect(() => {
     const updateScroll = () => {
-      if (!audioContextRef.current || !duration || !autoScrollEnabled) return;
+      if (!audioContextRef.current || !duration || !autoScrollEnabled || !isPlaying) return;
 
       const currentTime = audioContextRef.current.currentTime - startTimeRef.current;
       const delaySeconds = 5;
@@ -102,9 +102,7 @@ export default function Home() {
         setScrollProgress(0);
       }
 
-      if (isPlaying && autoScrollEnabled) {
-        animationFrameRef.current = requestAnimationFrame(updateScroll);
-      }
+      animationFrameRef.current = requestAnimationFrame(updateScroll);
     };
 
     if (isPlaying && autoScrollEnabled) {
@@ -170,21 +168,28 @@ export default function Home() {
     playAudio();
   };
 
-  const handleReenableAutoScroll = () => {
-    // Calculate current position based on audio time
-    if (audioContextRef.current && duration) {
-      const currentTime = audioContextRef.current.currentTime - startTimeRef.current;
-      const delaySeconds = 5;
+  const calculateScrollProgress = () => {
+    if (!duration) return 0;
 
-      if (currentTime > delaySeconds) {
-        const scrollTime = currentTime - delaySeconds;
-        const scrollDuration = duration - delaySeconds;
-        const progress = Math.min(scrollTime / scrollDuration, 1);
-        setScrollProgress(progress);
-      } else {
-        setScrollProgress(0);
-      }
+    let currentTime: number;
+    if (isPlaying && audioContextRef.current) {
+      currentTime = audioContextRef.current.currentTime - startTimeRef.current;
+    } else {
+      currentTime = pausedAtRef.current;
     }
+
+    const delaySeconds = 5;
+    if (currentTime > delaySeconds) {
+      const scrollTime = currentTime - delaySeconds;
+      const scrollDuration = duration - delaySeconds;
+      return Math.min(scrollTime / scrollDuration, 1);
+    }
+    return 0;
+  };
+
+  const handleReenableAutoScroll = () => {
+    const progress = calculateScrollProgress();
+    setScrollProgress(progress);
     setAutoScrollEnabled(true);
   };
 
