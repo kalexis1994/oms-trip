@@ -1,0 +1,9 @@
+<svg width="800" height="600" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="600" fill="#f1f3f6"/>
+  <rect x="0" y="350" width="800" height="250" fill="#557cbf"/>
+  <circle cx="650" cy="100" r="60" fill="#ffd700"/>
+  <text x="400" y="280" text-anchor="middle" fill="#5b6770" font-family="Arial, sans-serif" font-size="24" font-weight="bold">TRIP PHOTO</text>
+  <text x="400" y="310" text-anchor="middle" fill="#999" font-family="Arial, sans-serif" font-size="14">Replace with your team photo</text>
+  <path d="M300 350 L400 280 L500 350" fill="#3c63a6"/>
+  <path d="M150 350 L280 250 L410 350" fill="#557cbf"/>
+</svg>
