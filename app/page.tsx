@@ -95,14 +95,7 @@ export default function Home() {
       if (!isRunning || !sourceNodeRef.current || !audioContextRef.current || !duration) return;
 
       const currentTime = audioContextRef.current.currentTime - startTimeRef.current;
-      const delaySeconds = 5;
-
-      let progress = 0;
-      if (currentTime > delaySeconds) {
-        const scrollTime = currentTime - delaySeconds;
-        const scrollDuration = duration - delaySeconds;
-        progress = Math.min(scrollTime / scrollDuration, 1);
-      }
+      const progress = Math.min(Math.max(currentTime / duration, 0), 1);
 
       // Always update synced position ref (instant, no React batching)
       syncedProgressRef.current = progress;
@@ -185,13 +178,7 @@ export default function Home() {
 
     if (sourceNodeRef.current && audioContextRef.current && duration) {
       const currentTime = audioContextRef.current.currentTime - startTimeRef.current;
-      const delaySeconds = 5;
-
-      if (currentTime > delaySeconds) {
-        const scrollTime = currentTime - delaySeconds;
-        const scrollDuration = duration - delaySeconds;
-        targetProgress = Math.min(scrollTime / scrollDuration, 1);
-      }
+      targetProgress = Math.min(Math.max(currentTime / duration, 0), 1);
     }
 
     console.log('Re-enabling auto-scroll, jumping to:', targetProgress);
