@@ -7,7 +7,6 @@ export default function Home() {
   const [hasStarted, setHasStarted] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [duration, setDuration] = useState(0);
-  const [syncedProgress, setSyncedProgress] = useState(0); // Position based on audio time
   const [displayProgress, setDisplayProgress] = useState(0); // Position shown on screen
   const [autoScrollEnabled, setAutoScrollEnabled] = useState(true);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -16,6 +15,7 @@ export default function Home() {
   const startTimeRef = useRef<number>(0);
   const pausedAtRef = useRef<number>(0);
   const animationFrameRef = useRef<number | null>(null);
+  const syncedProgressRef = useRef<number>(0); // Always up-to-date synced position
   const lyricsContainerRef = useRef<HTMLDivElement>(null);
   const mainContainerRef = useRef<HTMLElement>(null);
 
@@ -87,8 +87,10 @@ export default function Home() {
 
   // Always track synced position based on audio time
   useEffect(() => {
+    let isRunning = true;
+
     const updateSyncedPosition = () => {
-      if (!sourceNodeRef.current || !audioContextRef.current || !duration) return;
+      if (!isRunning || !sourceNodeRef.current || !audioContextRef.current || !duration) return;
 
       const currentTime = audioContextRef.current.currentTime - startTimeRef.current;
       const delaySeconds = 5;
@@ -100,8 +102,8 @@ export default function Home() {
         progress = Math.min(scrollTime / scrollDuration, 1);
       }
 
-      // Always update synced position
-      setSyncedProgress(progress);
+      // Always update synced position ref (instant, no React batching)
+      syncedProgressRef.current = progress;
 
       // Only update display position if auto-scroll is enabled
       if (autoScrollEnabled) {
@@ -112,10 +114,11 @@ export default function Home() {
     };
 
     if (isPlaying) {
-      animationFrameRef.current = requestAnimationFrame(updateSyncedPosition);
+      updateSyncedPosition();
     }
 
     return () => {
+      isRunning = false;
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
@@ -175,8 +178,8 @@ export default function Home() {
   };
 
   const handleReenableAutoScroll = () => {
-    // Move display position to synced position
-    setDisplayProgress(syncedProgress);
+    // Move display position to current synced position (from ref, always up-to-date)
+    setDisplayProgress(syncedProgressRef.current);
     setAutoScrollEnabled(true);
   };
 
