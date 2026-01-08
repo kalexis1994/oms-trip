@@ -117,7 +117,7 @@ export default function Home() {
           isPlaying ? "opacity-0 pointer-events-none" : "opacity-100"
         }`}
       >
-        <h1 className="text-white text-3xl md:text-5xl font-bold mb-8 text-center px-4" style={{ fontFamily: 'var(--font-exo)', textShadow: '2px 2px 8px rgba(0,0,0,0.8), 0 0 20px rgba(0,0,0,0.5)' }}>
+        <h1 className="text-3xl md:text-5xl font-bold mb-8 text-center px-4" style={{ fontFamily: 'var(--font-exo)', color: '#ffffff', textShadow: '2px 2px 8px rgba(0,0,0,0.9), 0 0 30px rgba(0,0,0,0.7)' }}>
           Outliers Under the Sun
         </h1>
         <button
@@ -151,7 +151,7 @@ export default function Home() {
         {/* Main Lyrics Section */}
         <main className="flex-1 flex items-center justify-center px-4 pt-16 pb-32">
           <div className="max-w-4xl w-full">
-            <h1 className="text-white text-4xl md:text-6xl font-extrabold text-center mb-12" style={{ fontFamily: 'var(--font-exo)', textShadow: '2px 2px 8px rgba(0,0,0,0.8), 0 0 20px rgba(0,0,0,0.5)' }}>
+            <h1 className="text-4xl md:text-6xl font-extrabold text-center mb-12" style={{ fontFamily: 'var(--font-exo)', color: '#ffffff', textShadow: '2px 2px 8px rgba(0,0,0,0.9), 0 0 30px rgba(0,0,0,0.7)' }}>
               Outliers Under the Sun
             </h1>
 
@@ -246,17 +246,16 @@ export default function Home() {
       </div>
 
       {/* Footer - Always visible */}
-      <footer className="fixed bottom-0 left-0 right-0 z-30 py-4 bg-black/60 backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto px-4 flex flex-col items-center gap-2">
-          {/* OMS Logo */}
+      <footer className="fixed bottom-0 left-0 right-0 z-30 py-2 bg-black/60 backdrop-blur-sm">
+        <div className="max-w-6xl mx-auto px-4 flex items-center justify-center gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/oms-logo.png"
             alt="Outliers Mining Solutions"
-            className="h-10"
+            className="h-6"
           />
-          <p className="text-white/60 text-xs">
-            Powered by <span className="font-semibold text-white/80">OTSI</span>
+          <p className="text-white/50 text-[10px]">
+            Powered by <span className="font-semibold text-white/70">OTSI</span>
           </p>
         </div>
       </footer>
