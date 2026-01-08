@@ -108,7 +108,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen relative">
+    <div className="min-h-dvh relative">
       {/* Background Image with Overlay */}
       <div
         className="fixed inset-0 bg-cover bg-center bg-no-repeat"
@@ -147,26 +147,28 @@ export default function Home() {
         </p>
       </div>
 
-      {/* Floating Resume Button - Shows when paused after starting */}
-      {hasStarted && !isPlaying && (
+      {/* Floating Play/Pause Button - Always visible after starting */}
+      {hasStarted && (
         <button
-          onClick={handleResume}
-          className="fixed top-4 right-4 z-40 w-14 h-14 rounded-full bg-[#bf3c38] flex items-center justify-center cursor-pointer hover:bg-[#d44540] transition-all shadow-xl"
-          aria-label="Resume song"
+          onClick={isPlaying ? pauseAudio : handleResume}
+          className="fixed top-3 right-3 z-40 w-10 h-10 rounded-full bg-[#bf3c38]/80 flex items-center justify-center cursor-pointer hover:bg-[#d44540] transition-all shadow-lg backdrop-blur-sm"
+          aria-label={isPlaying ? "Pause song" : "Resume song"}
         >
-          <svg
-            className="w-6 h-6 text-white ml-1"
-            fill="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path d="M8 5v14l11-7z"/>
-          </svg>
+          {isPlaying ? (
+            <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+            </svg>
+          ) : (
+            <svg className="w-4 h-4 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+          )}
         </button>
       )}
 
       {/* Lyrics Content - Fades in after first play */}
       <div
-        className={`relative z-10 min-h-screen flex flex-col transition-opacity duration-1500 ${
+        className={`relative z-10 min-h-dvh flex flex-col transition-opacity duration-1500 ${
           hasStarted ? "opacity-100" : "opacity-0"
         }`}
         style={{ transitionDuration: "1.5s", transitionDelay: "0.5s" }}
