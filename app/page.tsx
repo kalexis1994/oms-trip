@@ -8,6 +8,7 @@ export default function Home() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [duration, setDuration] = useState(0);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [autoScrollEnabled, setAutoScrollEnabled] = useState(true);
   const audioContextRef = useRef<AudioContext | null>(null);
   const sourceNodeRef = useRef<AudioBufferSourceNode | null>(null);
   const audioBufferRef = useRef<AudioBuffer | null>(null);
@@ -15,6 +16,7 @@ export default function Home() {
   const pausedAtRef = useRef<number>(0);
   const animationFrameRef = useRef<number | null>(null);
   const lyricsContainerRef = useRef<HTMLDivElement>(null);
+  const mainContainerRef = useRef<HTMLElement>(null);
 
   // Preload audio on mount
   useEffect(() => {
@@ -60,10 +62,32 @@ export default function Home() {
     };
   }, [isPlaying]);
 
+  // Detect manual scroll to disable auto-scroll
+  useEffect(() => {
+    const handleManualScroll = () => {
+      if (autoScrollEnabled && hasStarted) {
+        setAutoScrollEnabled(false);
+      }
+    };
+
+    const container = mainContainerRef.current;
+    if (container) {
+      container.addEventListener('wheel', handleManualScroll, { passive: true });
+      container.addEventListener('touchmove', handleManualScroll, { passive: true });
+    }
+
+    return () => {
+      if (container) {
+        container.removeEventListener('wheel', handleManualScroll);
+        container.removeEventListener('touchmove', handleManualScroll);
+      }
+    };
+  }, [autoScrollEnabled, hasStarted]);
+
   // Sync scroll position with audio time
   useEffect(() => {
     const updateScroll = () => {
-      if (!audioContextRef.current || !duration) return;
+      if (!audioContextRef.current || !duration || !autoScrollEnabled) return;
 
       const currentTime = audioContextRef.current.currentTime - startTimeRef.current;
       const delaySeconds = 5;
@@ -78,12 +102,12 @@ export default function Home() {
         setScrollProgress(0);
       }
 
-      if (isPlaying) {
+      if (isPlaying && autoScrollEnabled) {
         animationFrameRef.current = requestAnimationFrame(updateScroll);
       }
     };
 
-    if (isPlaying) {
+    if (isPlaying && autoScrollEnabled) {
       animationFrameRef.current = requestAnimationFrame(updateScroll);
     }
 
@@ -92,7 +116,7 @@ export default function Home() {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [isPlaying, duration]);
+  }, [isPlaying, duration, autoScrollEnabled]);
 
   const playAudio = () => {
     if (!audioContextRef.current || !audioBufferRef.current) return;
@@ -146,6 +170,10 @@ export default function Home() {
     playAudio();
   };
 
+  const handleReenableAutoScroll = () => {
+    setAutoScrollEnabled(true);
+  };
+
   return (
     <div className="min-h-dvh relative">
       {/* Background Image with Overlay */}
@@ -186,23 +214,39 @@ export default function Home() {
         </p>
       </div>
 
-      {/* Floating Play/Pause Button - Always visible after starting */}
+      {/* Floating Buttons - Always visible after starting */}
       {hasStarted && (
-        <button
-          onClick={isPlaying ? pauseAudio : handleResume}
-          className="fixed top-3 right-3 z-40 w-10 h-10 rounded-full bg-[#bf3c38]/80 flex items-center justify-center cursor-pointer hover:bg-[#d44540] transition-all shadow-lg backdrop-blur-sm"
-          aria-label={isPlaying ? "Pause song" : "Resume song"}
-        >
-          {isPlaying ? (
-            <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
-            </svg>
-          ) : (
-            <svg className="w-4 h-4 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M8 5v14l11-7z"/>
-            </svg>
+        <div className="fixed top-3 right-3 z-40 flex flex-col gap-2">
+          {/* Play/Pause Button */}
+          <button
+            onClick={isPlaying ? pauseAudio : handleResume}
+            className="w-10 h-10 rounded-full bg-[#bf3c38]/80 flex items-center justify-center cursor-pointer hover:bg-[#d44540] transition-all shadow-lg backdrop-blur-sm"
+            aria-label={isPlaying ? "Pause song" : "Resume song"}
+          >
+            {isPlaying ? (
+              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+              </svg>
+            ) : (
+              <svg className="w-4 h-4 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+            )}
+          </button>
+
+          {/* Auto-scroll Button - Shows when auto-scroll is disabled */}
+          {!autoScrollEnabled && (
+            <button
+              onClick={handleReenableAutoScroll}
+              className="w-10 h-10 rounded-full bg-[#557cbf]/80 flex items-center justify-center cursor-pointer hover:bg-[#3c63a6] transition-all shadow-lg backdrop-blur-sm"
+              aria-label="Return to auto-scroll"
+            >
+              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
+              </svg>
+            </button>
           )}
-        </button>
+        </div>
       )}
 
       {/* Lyrics Content - Fades in after first play */}
@@ -213,7 +257,7 @@ export default function Home() {
         style={{ transitionDuration: "1.5s", transitionDelay: "0.5s" }}
       >
         {/* Main Lyrics Section */}
-        <main className="flex-1 overflow-hidden px-4 pt-16 pb-32">
+        <main ref={mainContainerRef} className="flex-1 overflow-hidden px-4 pt-16 pb-32">
           <div
             ref={lyricsContainerRef}
             className="max-w-4xl mx-auto w-full transition-transform duration-100"
