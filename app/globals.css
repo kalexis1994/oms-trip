@@ -102,10 +102,18 @@ h1, h2, h3, h4, h5, h6 {
   animation: fadeIn 1s ease-out forwards;
 }
 
-.lyrics-scroll .lyric-section:nth-child(1) { animation-delay: 0.5s; }
-.lyrics-scroll .lyric-section:nth-child(2) { animation-delay: 1s; }
-.lyrics-scroll .lyric-section:nth-child(3) { animation-delay: 1.5s; }
-.lyrics-scroll .lyric-section:nth-child(4) { animation-delay: 2s; }
-.lyrics-scroll .lyric-section:nth-child(5) { animation-delay: 2.5s; }
-.lyrics-scroll .lyric-section:nth-child(6) { animation-delay: 3s; }
-.lyrics-scroll .lyric-section:nth-child(7) { animation-delay: 3.5s; }
+/* Auto-scroll lyrics animation */
+@keyframes lyricsScroll {
+  0% {
+    transform: translateY(30vh);
+  }
+  100% {
+    transform: translateY(-100%);
+  }
+}
+
+.lyrics-auto-scroll {
+  animation-name: lyricsScroll;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}

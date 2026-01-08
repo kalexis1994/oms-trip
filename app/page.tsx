@@ -6,6 +6,7 @@ export default function Home() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [duration, setDuration] = useState(0);
   const audioContextRef = useRef<AudioContext | null>(null);
   const sourceNodeRef = useRef<AudioBufferSourceNode | null>(null);
   const audioBufferRef = useRef<AudioBuffer | null>(null);
@@ -25,6 +26,7 @@ export default function Home() {
 
         // Decode audio data
         audioBufferRef.current = await audioContextRef.current.decodeAudioData(arrayBuffer);
+        setDuration(audioBufferRef.current.duration);
         setIsLoaded(true);
       } catch (error) {
         console.error("Error loading audio:", error);
@@ -174,8 +176,14 @@ export default function Home() {
         style={{ transitionDuration: "1.5s", transitionDelay: "0.5s" }}
       >
         {/* Main Lyrics Section */}
-        <main className="flex-1 flex items-center justify-center px-4 pt-16 pb-32">
-          <div className="max-w-4xl w-full">
+        <main className="flex-1 overflow-hidden px-4 pt-16 pb-32">
+          <div
+            className="max-w-4xl mx-auto w-full lyrics-auto-scroll"
+            style={{
+              animationDuration: duration ? `${duration}s` : '180s',
+              animationPlayState: isPlaying ? 'running' : 'paused',
+            }}
+          >
             <h1 className="text-4xl md:text-6xl font-extrabold text-center mb-12" style={{ fontFamily: 'var(--font-exo)', color: '#ffffff', textShadow: '2px 2px 8px rgba(0,0,0,0.9), 0 0 30px rgba(0,0,0,0.7)' }}>
               Outliers Under the Sun
             </h1>
