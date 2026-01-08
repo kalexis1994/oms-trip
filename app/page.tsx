@@ -9,6 +9,7 @@ export default function Home() {
   const [duration, setDuration] = useState(0);
   const [displayProgress, setDisplayProgress] = useState(0); // Position shown on screen
   const [autoScrollEnabled, setAutoScrollEnabled] = useState(true);
+  const [contentHeight, setContentHeight] = useState(0);
   const autoScrollEnabledRef = useRef(true); // Ref version for animation loop
   const audioContextRef = useRef<AudioContext | null>(null);
   const sourceNodeRef = useRef<AudioBufferSourceNode | null>(null);
@@ -63,6 +64,23 @@ export default function Home() {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [isPlaying]);
+
+  // Measure content height for scroll calculation
+  useEffect(() => {
+    const measureHeight = () => {
+      if (lyricsContainerRef.current) {
+        const height = lyricsContainerRef.current.scrollHeight;
+        setContentHeight(height);
+      }
+    };
+
+    measureHeight();
+    window.addEventListener('resize', measureHeight);
+
+    return () => {
+      window.removeEventListener('resize', measureHeight);
+    };
+  }, [hasStarted]);
 
   // Detect manual scroll to disable auto-scroll
   useEffect(() => {
@@ -278,7 +296,7 @@ export default function Home() {
             ref={lyricsContainerRef}
             className={`max-w-4xl mx-auto w-full transition-transform ${autoScrollEnabled ? 'duration-500' : 'duration-0'}`}
             style={{
-              transform: `translateY(calc(30vh - ${displayProgress * 130}vh))`,
+              transform: `translateY(calc(30vh - ${displayProgress * (contentHeight + 100)}px))`,
             }}
           >
             <h1 className="text-4xl md:text-6xl font-extrabold text-center mb-12" style={{ fontFamily: 'var(--font-exo)', color: '#ffffff', textShadow: '2px 2px 8px rgba(0,0,0,0.9), 0 0 30px rgba(0,0,0,0.7)' }}>
