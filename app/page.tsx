@@ -180,9 +180,25 @@ export default function Home() {
   };
 
   const handleReenableAutoScroll = () => {
-    // Move display position to current synced position (from ref, always up-to-date)
-    const targetProgress = syncedProgressRef.current;
+    // Calculate position directly from audio context
+    let targetProgress = 0;
+
+    if (sourceNodeRef.current && audioContextRef.current && duration) {
+      const currentTime = audioContextRef.current.currentTime - startTimeRef.current;
+      const delaySeconds = 5;
+
+      if (currentTime > delaySeconds) {
+        const scrollTime = currentTime - delaySeconds;
+        const scrollDuration = duration - delaySeconds;
+        targetProgress = Math.min(scrollTime / scrollDuration, 1);
+      }
+    }
+
+    console.log('Re-enabling auto-scroll, jumping to:', targetProgress);
+
+    // Force update display position
     setDisplayProgress(targetProgress);
+    syncedProgressRef.current = targetProgress;
     autoScrollEnabledRef.current = true;
     setAutoScrollEnabled(true);
   };
