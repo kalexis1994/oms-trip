@@ -7,11 +7,14 @@ export default function Home() {
   const [hasStarted, setHasStarted] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [duration, setDuration] = useState(0);
+  const [scrollProgress, setScrollProgress] = useState(0);
   const audioContextRef = useRef<AudioContext | null>(null);
   const sourceNodeRef = useRef<AudioBufferSourceNode | null>(null);
   const audioBufferRef = useRef<AudioBuffer | null>(null);
   const startTimeRef = useRef<number>(0);
   const pausedAtRef = useRef<number>(0);
+  const animationFrameRef = useRef<number | null>(null);
+  const lyricsContainerRef = useRef<HTMLDivElement>(null);
 
   // Preload audio on mount
   useEffect(() => {
@@ -56,6 +59,40 @@ export default function Home() {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [isPlaying]);
+
+  // Sync scroll position with audio time
+  useEffect(() => {
+    const updateScroll = () => {
+      if (!audioContextRef.current || !duration) return;
+
+      const currentTime = audioContextRef.current.currentTime - startTimeRef.current;
+      const delaySeconds = 5;
+
+      // Calculate progress (0 to 1) after delay
+      if (currentTime > delaySeconds) {
+        const scrollTime = currentTime - delaySeconds;
+        const scrollDuration = duration - delaySeconds;
+        const progress = Math.min(scrollTime / scrollDuration, 1);
+        setScrollProgress(progress);
+      } else {
+        setScrollProgress(0);
+      }
+
+      if (isPlaying) {
+        animationFrameRef.current = requestAnimationFrame(updateScroll);
+      }
+    };
+
+    if (isPlaying) {
+      animationFrameRef.current = requestAnimationFrame(updateScroll);
+    }
+
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [isPlaying, duration]);
 
   const playAudio = () => {
     if (!audioContextRef.current || !audioBufferRef.current) return;
@@ -178,11 +215,10 @@ export default function Home() {
         {/* Main Lyrics Section */}
         <main className="flex-1 overflow-hidden px-4 pt-16 pb-32">
           <div
-            className="max-w-4xl mx-auto w-full lyrics-auto-scroll"
+            ref={lyricsContainerRef}
+            className="max-w-4xl mx-auto w-full transition-transform duration-100"
             style={{
-              animationDuration: duration ? `${duration - 5}s` : '175s',
-              animationPlayState: isPlaying ? 'running' : 'paused',
-              animationDelay: '5s',
+              transform: `translateY(calc(30vh - ${scrollProgress * 130}vh))`,
             }}
           >
             <h1 className="text-4xl md:text-6xl font-extrabold text-center mb-12" style={{ fontFamily: 'var(--font-exo)', color: '#ffffff', textShadow: '2px 2px 8px rgba(0,0,0,0.9), 0 0 30px rgba(0,0,0,0.7)' }}>

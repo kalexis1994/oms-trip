@@ -102,18 +102,3 @@ h1, h2, h3, h4, h5, h6 {
   animation: fadeIn 1s ease-out forwards;
 }
 
-/* Auto-scroll lyrics animation */
-@keyframes lyricsScroll {
-  0% {
-    transform: translateY(30vh);
-  }
-  100% {
-    transform: translateY(-100%);
-  }
-}
-
-.lyrics-auto-scroll {
-  animation-name: lyricsScroll;
-  animation-timing-function: linear;
-  animation-fill-mode: forwards;
-}
